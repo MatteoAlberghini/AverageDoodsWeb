@@ -1,65 +1,162 @@
+/*
+ * [PAGE] Main page
+ */
+// SECTION Imports
+// Chakra UI
+import { Flex } from '@chakra-ui/layout'
+import { Button } from '@chakra-ui/button'
+// React
+import React, { Component } from 'react'
+// Next
 import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+// Cookies
+import cookies from 'next-cookies'
+// Theme
+import ThemeContext, { themes } from '../src/constants/theme'
+// UI
+import AbsoluteButtonLeft from '../src/components/ui/AbsoluteButtonLeft'
+import ChangeThemeModal from '../src/components/ui/ChangeThemeModal'
+// Prop Types
+import PropTypes from 'prop-types'
 
-export default function Home() {
-  return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+// SECTION Main function
+class Home extends Component {
+  // ANCHOR Constructor
+  constructor(props) {
+    super(props)
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+    // Get props & standard constants
+    const { theme } = props
 
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
+    // Set state
+    this.state = {
+      // Theme
+      currentTheme: theme,
+      // Theme modal
+      isOpenThemeModal: false,
+    }
+  }
 
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+  // ANCHOR Override
+  // Mount
+  componentDidMount() {}
+  // Unmount
+  componentWillUnmount() {}
 
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
+  // ANCHOR Functions
+  // Open theme modal
+  openThemeModal = () => {
+    this.setState({ isOpenThemeModal: true })
+  }
+  // Close theme modal
+  closeThemeModal = () => {
+    this.setState({ isOpenThemeModal: false })
+  }
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
+  // ANCHOR Render
+  render() {
+    // Constants
+    const { currentTheme, isOpenThemeModal } = this.state
+    const testBackgrounds = [
+      {
+        id: 0,
+        image: '/images/1876.jpg',
+      },
+      {
+        id: 2,
+        image: '/images/1876.jpg',
+      },
+      {
+        id: 3,
+        image: '/images/1876.jpg',
+      },
+    ]
 
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
+    // Return statement
+    return (
+      <Flex minH="100%">
+        <Head>
+          <title>Average Doods</title>
+          <link rel="icon" href="/favicon.ico" />
+          <link rel="preload" href="/fonts/Dosis-VariableFont_wght.ttf" as="font" crossOrigin="" />
+        </Head>
 
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
-  )
+        {/* Main body */}
+        <Flex as="main" className="svg-main-bg" minH="100vh" w="100%" justify="center" flexDir="column" align="center">
+          {/*}<Img src="/images/space-violet.svg" height="100%" width="100%" position="absolute" objectFit="" />{*/}
+          {/*}<Button onClick={changeTheme}>test</Button>{*/}
+          {/* Open button */}
+          <ChangeThemeModal isOpen={isOpenThemeModal} onClose={this.closeThemeModal} theme={currentTheme} backgrounds={testBackgrounds} />
+          <AbsoluteButtonLeft onClick={this.openThemeModal} theme={currentTheme} />
+          {/* <DropdownButton theme={currentTheme} isOpen={isOpen} isLoading={isLoading} buttonRef={buttonRef} closeDrawer={closeDrawer} /> */}
+        </Flex>
+      </Flex>
+    )
+  }
 }
+
+// SECTION Export
+// Check current theme
+const checkTheme = (ctx) => {
+  let tempTheme = themes.colorful
+  const { theme } = cookies(ctx)
+  if (theme) {
+    tempTheme = theme
+  }
+  return tempTheme
+}
+// Export server side props
+export const getServerSideProps = async (ctx) => {
+  const theme = checkTheme(ctx)
+  return {
+    props: {
+      theme,
+    },
+  }
+}
+// Prop types
+Home.propTypes = {
+  theme: PropTypes.object,
+}
+// Export default
+export default Home
+
+/*
+const themeContext = React.useContext(ThemeContext)
+const [isOpen, setIsOpen] = React.useState(false)
+const [isLoading, setIsLoading] = React.useState(true)
+let currentTimeout = false
+let buttonRef = React.useRef()
+const changeTheme = () => {
+  if (currentTheme.name === themes.another.name) {
+    console.log('another')
+    themeContext.changeCurrentTheme(themes.colorful)
+    setCurrentTheme(themes.colorful)
+    return
+  }
+  console.log('color')
+  themeContext.changeCurrentTheme(themes.another)
+  setCurrentTheme(themes.another)
+}
+
+const openDrawer = () => {
+  clearTimeout(currentTimeout)
+  setIsLoading(true)
+
+  if (isOpen) {
+    setIsOpen(false)
+  } else {
+    setIsOpen(true)
+    currentTimeout = setTimeout(() => {
+      setIsLoading(false)
+    }, 1000)
+  }
+}
+
+const closeDrawer = () => {
+  if (isOpen) {
+    setIsLoading(true)
+    setIsOpen(false)
+  }
+}
+*/
